@@ -177,3 +177,20 @@ Nginx减轻了上游服务器的并发压力；延长了一个请求的处理时
 ### 总结：
 
 Nginx是一个高性能的HTTP和反向代理服务器，也是一个IMAP/POP3/SMTP服务器。工作原理也很简单，通过转发请求，分担压力，从而减轻服务器的压力，达到负载均衡的效果。
+
+
+
+    server {
+        listen       80;
+        server_name  pod.baidu.com;
+        location / {
+            proxy_pass https://www.baidu.com/;
+        }
+        error_page 404 /404.html;
+        location = /404.html {
+        }
+    
+        error_page 500 502 503 504 /50x.html;
+        location = /50x.html {
+        }
+    }
