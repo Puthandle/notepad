@@ -568,3 +568,41 @@ private boolean addWorker(Runnable firstTask, boolean core) {
 }
 ```
 
+shutdown 和 shutdownNow 有什么区别
+
+```java
+// 不再接受新任务, 会等队列中任务跑完之后再调用tryTerminate方法释放线程池。
+public void shutdown() {
+    ReentrantLock mainLock = this.mainLock;
+    mainLock.lock();
+
+    try {
+        this.checkShutdownAccess();
+        this.advanceRunState(0);
+        this.interruptIdleWorkers();
+        this.onShutdown();
+    } finally {
+        mainLock.unlock();
+    }
+
+    this.tryTerminate();
+}
+// 不再接受新任务, 丢弃队列中现有的任务。调用tryTerminate方法释放线程池。
+public List<Runnable> shutdownNow() {
+    ReentrantLock mainLock = this.mainLock;
+    mainLock.lock();
+
+    List tasks;
+    try {
+        this.checkShutdownAccess();
+        this.advanceRunState(536870912);
+        this.interruptWorkers();
+        tasks = this.drainQueue();
+    } finally {
+        mainLock.unlock();
+    }
+
+    this.tryTerminate();
+    return tasks;
+}
+```
